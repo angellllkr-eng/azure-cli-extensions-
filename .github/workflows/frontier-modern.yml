@@ -1,0 +1,25 @@
+name: Frontier Modern
+on:
+  push:
+    branches: [main, 'frontier/**']
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: frontier-modern-${{ github.repository }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - name: Validate Python project when present
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -f pyproject.toml ]; then python -m pip install --upgrade pip && python -m pip install -e .; elif [ -f requirements.txt ]; then python -m pip install -r requirements.txt; else echo 'No Python package manifest detected; validation complete.'; fi
